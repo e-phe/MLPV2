@@ -16,7 +16,7 @@ class Network:
         self,
         training_data,
         validation_data,
-        neurons,
+        layers,
         alpha,
         epochs,
         mini_batch_size,
@@ -27,10 +27,8 @@ class Network:
         dropout=None,
     ):
         if (
-            training_data
-            and validation_data
-            and isinstance(neurons, list)
-            and len(neurons)
+            isinstance(layers, list)
+            and len(layers)
             and alpha
             and isinstance(alpha, float)
             and epochs
@@ -44,8 +42,8 @@ class Network:
         ):
             self.training_data = training_data
             self.validation_data = validation_data
-            self.neurons = neurons
-            self.num_layers = len(neurons)
+            self.layers = layers
+            self.num_layers = len(layers)
             self.alpha = alpha
             self.epochs = epochs
             self.mini_batch_size = mini_batch_size
@@ -53,15 +51,15 @@ class Network:
             exit("Error: Bad initialization value")
 
         if xavier:
-            self.biases = [np.random.randn(y, 1) for y in neurons[1:]]
+            self.biases = [np.random.randn(y, 1) for y in layers[1:]]
             self.weights = [
                 np.random.randn(y, x) * (1 / np.sqrt(x))
-                for x, y in zip(neurons[:-1], neurons[1:])
+                for x, y in zip(layers[:-1], layers[1:])
             ]
         else:
-            self.biases = [np.random.randn(y, 1) for y in neurons[1:]]
+            self.biases = [np.random.randn(y, 1) for y in layers[1:]]
             self.weights = [
-                np.random.randn(y, x) for x, y in zip(neurons[:-1], neurons[1:])
+                np.random.randn(y, x) for x, y in zip(layers[:-1], layers[1:])
             ]
         if activation_functions == None:
             activation_functions = ["sigmoid"] * self.num_layers
@@ -90,7 +88,7 @@ class Network:
             self.batch_normalization = batch_normalization
         else:
             exit("Error: Bad batch normalization value")
-        self.batchnorms = [Batchnorm(i) for i in neurons[1:]]
+        self.batchnorms = [Batchnorm(i) for i in layers[1:]]
 
         self.loss_functions = LossFunctions().loss_functions.get(loss_functions)
 

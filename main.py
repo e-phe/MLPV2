@@ -12,47 +12,53 @@ def parser():
     parser = argparse.ArgumentParser(
         description="Discriminate between citizens who come from your favorite planet and everybody else",
     )
-    required = parser.add_argument_group("required arguments")
-    required.add_argument(
-        "-df_train",
+    parser.add_argument(
+        "-dataset_train",
+        "-train",
         help="path of the training dataset",
     )
     parser.add_argument(
-        "-df_eval",
+        "-dataset_evaluation",
+        "-eval",
         help="path of the evaluation dataset",
     )
     parser.add_argument(
         "-models",
+        "-m",
         help="load models from file",
     )
     parser.add_argument(
-        "-neurons",
+        "-layers",
+        "-l",
         nargs="+",
         type=int,
-        help="number of neurons on each layer",
+        help="number of layers on each layer",
         default=[784, 256, 128, 10],
     )
     parser.add_argument(
         "-alpha",
+        "-a",
         type=float,
         help="learning rate",
         default=1.0,
     )
     parser.add_argument(
         "-epochs",
+        "-e",
         type=int,
         help="number of iterations",
         default=10,
     )
     parser.add_argument(
         "-mini_batch_size",
-        "-mb_size",
+        "-mb",
         type=int,
         help="size of the mini batches",
         default=32,
     )
     parser.add_argument(
         "-xavier",
+        "-x",
         action="store_false",
         help="use Xavier weight initialization",
         default=True,
@@ -82,6 +88,7 @@ def parser():
     )
     parser.add_argument(
         "-dropout",
+        "-d",
         choices=[Range(0, 1)],
         type=float,
         nargs="+",
@@ -93,28 +100,28 @@ def parser():
 
 if __name__ == "__main__":
     kwargs = parser()
-    try:
-        df_train = np.loadtxt(
-            kwargs.df_train,
-            delimiter=",",
-            skiprows=1,
-        )
-        df_eval = np.loadtxt(
-            kwargs.df_eval,
-            delimiter=",",
-            skiprows=1,
-        )
-    except:
-        exit("FileNotFoundError: Can't find training dataset or evaluation dataset")
-
     ufunc = UsefulFunction()
-    x = [ufunc.normalization(np.reshape(x, (784, 1))) for x in df_train[:, :-1]]
-    y = [ufunc.vectorized_result(y) for y in df_train[:, [-1]]]
-    x_train, x_validation, y_train, y_validation = ufunc.data_spliter(x, y, 0.7)
-    x_eval = [ufunc.normalization(np.reshape(x, (784, 1))) for x in df_eval]
+
+    if kwargs.dataset_train:
+        try:
+            dataset_train = np.loadtxt(
+                kwargs.dataset_train,
+                delimiter=",",
+                skiprows=1,
+            )
+        except:
+            exit("FileNotFoundError: Can't find training dataset")
+
+        x = [
+            ufunc.normalization(np.reshape(x, (784, 1))) for x in dataset_train[:, :-1]
+        ]
+        y = [ufunc.vectorized_result(y) for y in dataset_train[:, [-1]]]
+        x_train, x_validation, y_train, y_validation = ufunc.data_spliter(x, y, 0.7)
+    else:
+        x_train, x_validation, y_train, y_validation = [], [], [], []
 
     param = {
-        "neurons": kwargs.neurons,
+        "layers": kwargs.layers,
         "alpha": kwargs.alpha,
         "epochs": kwargs.epochs,
         "mini_batch_size": kwargs.mini_batch_size,
@@ -139,6 +146,20 @@ if __name__ == "__main__":
         except:
             exit("FileNotFoundError: Can't find models")
     else:
-        (biases, weights) = net.gradient_descent()
-        np.savez("models", biases=biases, weights=weights)
-    net.compute_answer(x_eval, biases, weights)
+        if kwargs.dataset_train:
+            (biases, weights) = net.gradient_descent()
+            np.savez("models", biases=biases, weights=weights)
+
+    if kwargs.dataset_evaluation:
+        try:
+            dataset_eval = np.loadtxt(
+                kwargs.dataset_evaluation,
+                delimiter=",",
+                skiprows=1,
+            )
+            x_eval = [
+                ufunc.normalization(np.reshape(x, (784, 1))) for x in dataset_eval
+            ]
+            net.compute_answer(x_eval, biases, weights)
+        except:
+            exit("FileNotFoundError: Can't find evaluation dataset")

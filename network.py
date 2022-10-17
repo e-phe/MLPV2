@@ -1,9 +1,9 @@
 #!/usr/bin/env python3.8
 # -*- coding: utf-8 -*-
 
-from activation import ActivationFunction, ActivationFunctionPrime
+from activations import ActivationFunctions
 from batchnorm import Batchnorm
-from loss import LossFunction
+from loss import LossFunctions
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -21,7 +21,7 @@ class Network:
         epochs,
         mini_batch_size,
         xavier,
-        lost_functions,
+        loss_functions,
         activation_functions=None,
         batch_normalization=None,
         dropout=None,
@@ -37,8 +37,8 @@ class Network:
             and isinstance(epochs, int)
             and mini_batch_size
             and isinstance(mini_batch_size, int)
-            and lost_functions
-            and isinstance(lost_functions, str)
+            and loss_functions
+            and isinstance(loss_functions, str)
             and xavier
             and isinstance(xavier, bool)
         ):
@@ -63,18 +63,6 @@ class Network:
             self.weights = [
                 np.random.randn(y, x) for x, y in zip(neurons[:-1], neurons[1:])
             ]
-
-        afunc = ActivationFunction()
-        afunc_prime = ActivationFunctionPrime()
-        activation_function = {
-            "sigmoid": (afunc.sigmoid, afunc_prime.sigmoid_prime),
-            "softmax": (afunc.softmax, afunc_prime.softmax_prime),
-            "tanh": (afunc.tanh, afunc_prime.tanh_prime),
-            "relu": (afunc.relu, afunc_prime.relu_prime),
-            "leaky_relu": (afunc.leaky_relu, afunc_prime.leaky_relu_prime),
-            "elu": (afunc.elu, afunc_prime.elu_prime),
-            "gelu": (afunc.gelu, afunc_prime.gelu_prime),
-        }
         if activation_functions == None:
             activation_functions = ["sigmoid"] * self.num_layers
             activation_functions[-1] = "softmax"
@@ -83,7 +71,11 @@ class Network:
             and len(activation_functions) == self.num_layers
         ):
             self.activation_functions = list(
-                map(activation_function.get, activation_functions, activation_functions)
+                map(
+                    ActivationFunctions().activation_functions.get,
+                    activation_functions,
+                    activation_functions,
+                )
             )
             self.activation_functions_names = activation_functions
         else:
@@ -100,11 +92,7 @@ class Network:
             exit("Error: Bad batch normalization value")
         self.batchnorms = [Batchnorm(i) for i in neurons[1:]]
 
-        lfunc = LossFunction()
-        loss_function = {
-            "cross-entropy": (lfunc.cross_entropy, lfunc.cross_entropy_prime)
-        }
-        self.lost_functions = loss_function.get(lost_functions)
+        self.loss_functions = LossFunctions().loss_functions.get(loss_functions)
 
         if dropout == None:
             self.keep_rate = [1.0] * self.num_layers
@@ -195,7 +183,7 @@ class Network:
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
 
-        loss = self.lost_functions[1](y, activations[-1])
+        loss = self.loss_functions[1](y, activations[-1])
         delta_activation = self.activation_functions[-1][1](zs[-1])
         if self.activation_functions_names[-1] == "softmax":
             delta = delta_activation @ loss.T.reshape(
@@ -225,7 +213,7 @@ class Network:
         x, y = self.split_xy(data)
         y = y.T
         y_hat = self.predict(x, self.biases, self.weights).T
-        loss = self.lost_functions[0](y.reshape(-1, 1), y_hat.reshape(-1, 1))
+        loss = self.loss_functions[0](y.reshape(-1, 1), y_hat.reshape(-1, 1))
         accuracy = self.accuracy(y, y_hat)
         return [loss, accuracy]
 

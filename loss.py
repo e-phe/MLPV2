@@ -26,8 +26,8 @@ class BinaryCrossEntropy:
     def binary_cross_entropy(y, y_hat):
         return (
             -np.sum(
-                y.T @ np.log(y_hat + LossFunctions.eps)
-                + (1 - y).T @ np.log(1 - y_hat + LossFunctions.eps)
+                y.T @ np.log(y_hat + LossFunctions().eps)
+                + (1 - y).T @ np.log(1 - y_hat + LossFunctions().eps)
             )
             / y.shape[0]
         )
@@ -41,7 +41,7 @@ class CategoricalCrossEntropy:
         pass
 
     def categorical_cross_entropy(y, y_hat):
-        return -np.sum(y.T @ np.log(y_hat + LossFunctions.eps)) / y.shape[0]
+        return -np.sum(y.T @ np.log(y_hat + LossFunctions().eps)) / y.shape[0]
 
     def categorical_cross_entropy_prime(y, y_hat):
-        return -y / (y_hat + LossFunctions.eps)
+        return -y / (y_hat + LossFunctions().eps)

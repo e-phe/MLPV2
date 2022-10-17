@@ -58,11 +58,11 @@ def parser():
         default=True,
     )
     parser.add_argument(
-        "-lost_functions",
+        "-loss_functions",
         "-lf",
-        choices=["cross-entropy"],
+        choices=["binary_cross_entropy, categorical_cross_entropy"],
         help="choose loss function",
-        default="cross-entropy",
+        default="categorical_cross_entropy",
     )
     parser.add_argument(
         "-activation_functions",
@@ -119,7 +119,7 @@ if __name__ == "__main__":
         "epochs": kwargs.epochs,
         "mini_batch_size": kwargs.mini_batch_size,
         "xavier": kwargs.xavier,
-        "lost_functions": kwargs.lost_functions,
+        "loss_functions": kwargs.loss_functions,
         "activation_functions": kwargs.activation_functions,
         "batch_normalization": kwargs.batch_normalization,
         "dropout": kwargs.dropout,

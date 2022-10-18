@@ -111,12 +111,9 @@ if __name__ == "__main__":
             )
         except:
             exit("FileNotFoundError: Can't find training dataset")
-
-        x = [
-            ufunc.normalization(np.reshape(x, (784, 1))) for x in dataset_train[:, :-1]
-        ]
-        y = [ufunc.vectorized_result(y) for y in dataset_train[:, [-1]]]
-        x_train, x_validation, y_train, y_validation = ufunc.data_spliter(x, y, 0.7)
+        x_train, x_validation, y_train, y_validation = ufunc.prep_data(
+            dataset_train, 0.7
+        )
     else:
         x_train, x_validation, y_train, y_validation = [], [], [], []
 

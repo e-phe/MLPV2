@@ -72,10 +72,8 @@ class Network:
                 map(
                     ActivationFunctions().activation_functions.get,
                     activation_functions,
-                    activation_functions,
                 )
             )
-            self.activation_functions_names = activation_functions
         else:
             exit("Error: Bad activation fonction value")
 
@@ -166,7 +164,7 @@ class Network:
             if self.batch_normalization[i] == "before":
                 z = self.batchnorms[i].batch_norm_forward(z)
             zs.append(z)
-            activation = self.activation_functions[i][0](z)
+            activation = self.activation_functions[i].activation(z)
             if self.batch_normalization[i] == "after":
                 activation = self.batchnorms[i].batch_norm_forward(activation)
             dropout.append(
@@ -181,21 +179,17 @@ class Network:
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
 
-        loss = self.loss_functions[1](y, activations[-1])
-        delta_activation = self.activation_functions[-1][1](zs[-1])
-        if self.activation_functions_names[-1] == "softmax":
-            delta = delta_activation @ loss.T.reshape(
-                zs[-1].shape[1], zs[-1].shape[0], 1
-            )
-            delta = delta[:, :, 0].T
-        else:
-            delta = loss * delta_activation
+        loss = self.loss_functions.prime(y, activations[-1])
+        delta_activation = self.activation_functions[-1].prime(zs[-1])
+        delta = ActivationFunctions.last_layer(
+            self.activation_functions[-1](), zs, loss, delta_activation
+        )
 
         for l in range(2, self.num_layers):
             z = zs[-l]
             if self.batch_normalization[-l] == "after":
                 z = self.batchnorms[-l].batch_norm_backward(z, x, self.alpha)
-            delta_activation = self.activation_functions[-l][1](z)
+            delta_activation = self.activation_functions[-l].prime(z)
             if self.batch_normalization[-l] == "before":
                 delta_activation = self.batchnorms[-l].batch_norm_backward(
                     delta_activation, x, self.alpha
@@ -211,7 +205,7 @@ class Network:
         x, y = self.split_xy(data)
         y = y.T
         y_hat = self.predict(x, self.biases, self.weights).T
-        loss = self.loss_functions[0](y.reshape(-1, 1), y_hat.reshape(-1, 1))
+        loss = self.loss_functions.loss(y.reshape(-1, 1), y_hat.reshape(-1, 1))
         accuracy = self.accuracy(y, y_hat)
         return [loss, accuracy]
 
@@ -220,7 +214,7 @@ class Network:
             z = weights[i] @ activation + biases[i]
             if self.batch_normalization[i] == "before":
                 z = self.batchnorms[i].batch_norm(z)
-            activation = self.activation_functions[i][0](z)
+            activation = self.activation_functions[i].activation(z)
             if self.batch_normalization[i] == "after":
                 activation = self.batchnorms[i].batch_norm(activation)
         return activation

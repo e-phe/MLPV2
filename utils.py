@@ -16,9 +16,6 @@ class UsefulFunction:
     def normalization(self, x):
         return (x - np.min(x)) / (np.max(x) - np.min(x))
 
-    def standardization(self, x):
-        return (x - np.mean(x)) / np.std(x)
-
     def vectorized_result(self, i):
         e = np.zeros((10, 1))
         e[int(i)] = 1.0

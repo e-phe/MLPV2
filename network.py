@@ -203,9 +203,8 @@ class Network:
 
     def evaluate(self, data):
         x, y = self.split_xy(data)
-        y = y.T
         y_hat = self.predict(x, self.biases, self.weights).T
-        loss = self.loss_functions.loss(y.reshape(-1, 1), y_hat.reshape(-1, 1))
+        loss = self.loss_functions.loss(y.T.reshape(-1, 1), y_hat.reshape(-1, 1))
         accuracy = self.accuracy(y, y_hat)
         return [loss, accuracy]
 

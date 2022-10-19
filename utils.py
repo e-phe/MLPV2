@@ -8,11 +8,6 @@ class UsefulFunction:
     def __init__(self):
         pass
 
-    def prep_data(self, dataset, proportion):
-        x = [self.normalization(np.reshape(x, (784, 1))) for x in dataset[:, :-1]]
-        y = [self.vectorized_result(y) for y in dataset[:, [-1]]]
-        return self.data_spliter(x, y, proportion)
-
     def normalization(self, x):
         return (x - np.min(x)) / (np.max(x) - np.min(x))
 

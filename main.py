@@ -110,10 +110,10 @@ if __name__ == "__main__":
                 skiprows=1,
             )
         except:
-            exit("FileNotFoundError: Can't find training dataset")
-        x_train, x_validation, y_train, y_validation = ufunc.prep_data(
-            dataset_train, 0.7
-        )
+            exit(f"FileNotFoundError: Can't find {kwargs.dataset_train}")
+        x = [ufunc.normalization(np.reshape(x, (-1, 1))) for x in dataset_train[:, :-1]]
+        y = [ufunc.vectorized_result(y) for y in dataset_train[:, [-1]]]
+        x_train, x_validation, y_train, y_validation = ufunc.data_spliter(x, y, 0.7)
     else:
         x_train, x_validation, y_train, y_validation = [], [], [], []
 
@@ -132,7 +132,7 @@ if __name__ == "__main__":
     net = Network(
         list(zip(x_train, y_train)),
         list(zip(x_validation, y_validation)),
-        **{k: v for k, v in param.items() if v is not None}
+        **{k: v for k, v in param.items() if v is not None},
     )
 
     if kwargs.models:
@@ -141,7 +141,7 @@ if __name__ == "__main__":
             biases = models["biases"]
             weights = models["weights"]
         except:
-            exit("FileNotFoundError: Can't find models")
+            exit(f"FileNotFoundError: Can't find {kwargs.models}")
     else:
         if kwargs.dataset_train:
             (biases, weights) = net.gradient_descent()
@@ -154,9 +154,7 @@ if __name__ == "__main__":
                 delimiter=",",
                 skiprows=1,
             )
-            x_eval = [
-                ufunc.normalization(np.reshape(x, (784, 1))) for x in dataset_eval
-            ]
+            x_eval = [ufunc.normalization(np.reshape(x, (-1, 1))) for x in dataset_eval]
             net.compute_answer(x_eval, biases, weights)
         except:
-            exit("FileNotFoundError: Can't find evaluation dataset")
+            exit(f"FileNotFoundError: Can't find {kwargs.dataset_evaluation}")

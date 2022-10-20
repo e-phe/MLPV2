@@ -112,7 +112,7 @@ if __name__ == "__main__":
         except:
             exit(f"FileNotFoundError: Can't find {kwargs.dataset_train}")
         x = [ufunc.normalization(np.reshape(x, (-1, 1))) for x in dataset_train[:, :-1]]
-        y = [ufunc.vectorized_result(y) for y in dataset_train[:, [-1]]]
+        y = [ufunc.vectorized_result(y, 10) for y in dataset_train[:, [-1]]]
         x_train, x_validation, y_train, y_validation = ufunc.data_spliter(x, y, 0.7)
     else:
         x_train, x_validation, y_train, y_validation = [], [], [], []

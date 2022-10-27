@@ -10,7 +10,7 @@ import numpy as np
 
 def parser():
     parser = argparse.ArgumentParser(
-        description="Discriminate between citizens who come from your favorite planet and everybody else",
+        description="",
     )
     parser.add_argument(
         "-dataset_train",

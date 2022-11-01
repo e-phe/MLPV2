@@ -95,6 +95,13 @@ def parser():
         help="choose keep rate, probability of dropout",
         default=None,
     )
+    parser.add_argument(
+        "-clear",
+        "-c",
+        action="store_false",
+        help="hide text loss and accuracy",
+        default=True,
+    )
     return parser.parse_args()
 
 
@@ -127,6 +134,7 @@ if __name__ == "__main__":
         "activation_functions": kwargs.activation_functions,
         "batch_normalization": kwargs.batch_normalization,
         "dropout": kwargs.dropout,
+        "clear": kwargs.clear,
     }
 
     net = Network(

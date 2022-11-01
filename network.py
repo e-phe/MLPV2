@@ -25,6 +25,7 @@ class Network:
         activation_functions=None,
         batch_normalization=None,
         dropout=None,
+        clear=None,
     ):
         if (
             isinstance(layers, list)
@@ -96,6 +97,8 @@ class Network:
         else:
             exit("Error: Bad dropout value")
 
+        self.clear = clear
+
     def gradient_descent(self):
         training = np.zeros(self.epochs * 2).reshape(self.epochs, 2)
         validation = np.zeros(self.epochs * 2).reshape(self.epochs, 2)
@@ -119,20 +122,23 @@ class Network:
 
             training[i] = self.evaluate(self.training_data)
             validation[i] = self.evaluate(self.validation_data)
+
             if best[0] > validation[i, 0] and best[1] < validation[i, 1]:
                 best = validation[i]
                 biases = self.biases
                 weights = self.weights
-            print(
-                "epoch {}/{} - loss: {} - validation_loss: {}\naccuracy: {} - validation_accuracy: {}".format(
-                    i,
-                    self.epochs,
-                    training[i, 0],
-                    validation[i, 0],
-                    training[i, 1],
-                    validation[i, 1],
+
+            if self.clear:
+                print(
+                    "epoch {}/{} - loss: {} - validation_loss: {}\naccuracy: {} - validation_accuracy: {}".format(
+                        i,
+                        self.epochs,
+                        training[i, 0],
+                        validation[i, 0],
+                        training[i, 1],
+                        validation[i, 1],
+                    )
                 )
-            )
         self.display_graph(training, validation)
         if not len(biases) or not len(weights):
             return (self.biases, self.weights)

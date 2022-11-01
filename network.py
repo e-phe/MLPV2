@@ -37,7 +37,6 @@ class Network:
             and isinstance(mini_batch_size, int)
             and loss_functions
             and isinstance(loss_functions, str)
-            and xavier
             and isinstance(xavier, bool)
         ):
             self.training_data = training_data

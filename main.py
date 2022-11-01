@@ -59,9 +59,9 @@ def parser():
     parser.add_argument(
         "-xavier",
         "-x",
-        action="store_false",
+        action="store_true",
         help="use Xavier weight initialization",
-        default=True,
+        default=False,
     )
     parser.add_argument(
         "-loss_functions",
